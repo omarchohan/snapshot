@@ -16,11 +16,75 @@ def filter_instances(project):
 
     return instances
 
-
 @click.group()
+def cli():
+    """biggs manages snapshots"""
+
+@cli.group('snapshots')
+def snapshots():
+    """commands for snapshots"""
+
+@snapshots.command('list')
+@click.option('--project', default=None, help = "only snapshots for project (tag project:<name>)")
+def list_volumes(project):
+    "list EC2 snapshots"
+
+    instances=filter_instances(project)
+
+    for i in instances:
+        for v in i.volumes.all():
+            for s in v.snapshots.all():
+                print(", ".join((
+                    s.id,
+                    v.id,
+                    i.id,
+                    s.state,
+                    s.progress,
+                    s.start_time.strftime("%c")
+                )))
+    return
+
+@cli.group('volumes')
+def volumes():
+    """commands for volumes"""
+
+@volumes.command('list')
+@click.option('--project', default=None, help = "only volumes for project (tag project:<name>)")
+def list_volumes(project):
+    "list EC2 volumes"
+
+    instances=filter_instances(project)
+
+    for i in instances:
+        for v in i.volumes.all():
+            print(", ".join((
+                v.id,
+                i.id,
+                v.state,
+                str(v.size) + "GiB",
+                v.encrypted and "Encrypted" or "Not Encrypted"
+            )))
+
+    return
+
+
+@cli.group('instances')
 def instances():
 
     """commands for instances"""
+
+@instance.command('snapshot', help="create snapshots of all volume")
+@click.option('--project', default=None, help = "only instnaces for project (tag project:<name>)")
+def create_snapshots(project):
+    "create snapshots for ec2 instances"
+
+    instances=filter_instances(project)
+
+    for i in instances:
+        for v in i.volumes.all():
+            print("Creating snapshot of {0}".format(v.id))
+            v.create_snapshot(Description-"created by biggshot")
+    return
 
 @instances.command('list')
 @click.option('--project', default=None, help = "only instnaces for project (tag project:<name>)")
@@ -66,6 +130,5 @@ def start_instances(project):
 
     return
 
-
 if __name__ == '__main__':
-    instances()
+    cli()

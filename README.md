@@ -13,7 +13,8 @@ biggs uses config file created by aws cli e.g.
 
 ##running
 
-`pipenv run "biggs.py" <command> <--project=PROJECT>`
+`pipenv run "biggs.py" <command> <subcommand> <--project=PROJECT>`
 
-*command* is list, start, stop
+*command* is instances, volumes, snapshots
+*subcommand* depends on command
 *project* is optional
