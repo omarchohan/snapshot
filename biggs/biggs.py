@@ -19,7 +19,7 @@ def filter_instances(project):
 
 def has_pending_snapshot(volume):
     snapshots = list(volume.snapshots.all())
-    return snapshots and snapshots[0]. == 'pending'
+    return snapshots and snapshots[0].state == 'pending'
 
 @click.group()
 def cli():
@@ -97,9 +97,9 @@ def create_snapshots(project):
 
         for v in i.volumes.all():
             if has_pending_snapshot(v):
-                print("skipping {0}, snapshot already in progress".format.(v.id))
+                print("skipping {0}, snapshot already in progress".format(v.id))
                 continue
-                
+
             print("Creating snapshot of {0}".format(v.id))
             v.create_snapshot(Description="created by biggshot")
 
